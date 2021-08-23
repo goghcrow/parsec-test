@@ -1,10 +1,10 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.function.BiFunction;
 
-import static xiao.playground.peg.Parsec1.Fun3;
-import static xiao.playground.peg.Parsec1.Rule;
-import static xiao.playground.peg.Parsec1.Rules.*;
+import static xiao.parsec.Parsec1.Fun3;
+import static xiao.parsec.Parsec1.Rule;
+import static xiao.parsec.Parsec1.Rules.*;
 
 
 /**

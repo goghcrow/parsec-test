@@ -23,16 +23,16 @@
 
 
 ```java
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static xiao.playground.peg.Parsec1.Pair;
-import static xiao.playground.peg.Parsec1.Rule;
-import static xiao.playground.peg.Parsec1.Rules.*;
-import static xiao.playground.peg.Utils.unEscape;
+import static xiao.parsec.Parsec1.Pair;
+import static xiao.parsec.Parsec1.Rule;
+import static xiao.parsec.Parsec1.Rules.*;
+import static xiao.parsec.Utils.unEscape;
 
 public interface JSON1 {
     Rule WS = Whitespace();
@@ -129,17 +129,17 @@ public interface JSON1 {
 
 
 ```java
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static xiao.playground.peg.Parsec2.CharParsers.Pat;
-import static xiao.playground.peg.Parsec2.Combinators.*;
-import static xiao.playground.peg.Parsec2.Pair;
-import static xiao.playground.peg.Utils.unEscape;
+import static xiao.parsec.Parsec2.CharParsers.Pat;
+import static xiao.parsec.Parsec2.Combinators.*;
+import static xiao.parsec.Parsec2.Pair;
+import static xiao.parsec.Utils.unEscape;
 
 public interface JSON2 {
     // Parsec2<Character, Character> WS = SkipMany(Whitespace);
@@ -230,12 +230,12 @@ public interface JSON2 {
 
 
 ```java
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.function.BiFunction;
 
-import static xiao.playground.peg.Parsec.*;
-import static xiao.playground.peg.Parsec.Rules.*;
+import static xiao.parsec.Parsec.*;
+import static xiao.parsec.Parsec.Rules.*;
 
 
 /**
@@ -314,13 +314,13 @@ public interface Calculator {
 ```
 
 ```java
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.function.BiFunction;
 
-import static xiao.playground.peg.Parsec1.Fun3;
-import static xiao.playground.peg.Parsec1.Rule;
-import static xiao.playground.peg.Parsec1.Rules.*;
+import static xiao.parsec.Parsec1.Fun3;
+import static xiao.parsec.Parsec1.Rule;
+import static xiao.parsec.Parsec1.Rules.*;
 
 
 /**
@@ -370,9 +370,9 @@ public interface Calculator1 {
 ```
 
 ```java
-package xiao.playground.peg;
+package xiao.parsec;
 
-import xiao.playground.peg.Parsec.*;
+import xiao.parsec.Parsec.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -381,8 +381,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
-import static xiao.playground.peg.Parsec.*;
-import static xiao.playground.peg.Parsec.Rules.*;
+import static xiao.parsec.Parsec.*;
+import static xiao.parsec.Parsec.Rules.*;
 
 /**
  * @author chuxiaofeng <br>
@@ -702,18 +702,18 @@ public interface Criteria {
 ```
 
 ```java
-package xiao.playground.peg;
+package xiao.parsec;
 
-import xiao.playground.peg.Parsec1.Pair;
-import xiao.playground.peg.Parsec1.Rule;
-import xiao.playground.peg.Parsec1.Triple;
+import xiao.parsec.Parsec1.Pair;
+import xiao.parsec.Parsec1.Rule;
+import xiao.parsec.Parsec1.Triple;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
-import static xiao.playground.peg.Parsec1.Rules.*;
+import static xiao.parsec.Parsec1.Rules.*;
 
 /**
  * @author chuxiaofeng <br>

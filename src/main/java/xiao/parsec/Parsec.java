@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import static java.util.Arrays.*;
 import static java.util.stream.Collectors.toList;
-import static xiao.playground.peg.Parsec.Rules.*;
+import static xiao.parsec.Parsec.Rules.*;
 
 
 /**

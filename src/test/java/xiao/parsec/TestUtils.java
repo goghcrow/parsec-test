@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

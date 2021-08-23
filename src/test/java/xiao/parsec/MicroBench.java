@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;

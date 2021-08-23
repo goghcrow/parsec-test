@@ -1,15 +1,13 @@
-package xiao.playground.peg;
-
-import xiao.playground.peg.Parsec3.Pair;
+package xiao.parsec;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static xiao.playground.peg.Parsec3.CharParsers.Pat;
-import static xiao.playground.peg.Parsec3.Combinators.*;
-import static xiao.playground.peg.Utils.unEscape;
+import static xiao.parsec.Parsec1.Pair;
+import static xiao.parsec.Parsec1.Rule;
+import static xiao.parsec.Parsec1.Rules.*;
+import static xiao.parsec.Utils.unEscape;
 
 /**
  *   /
@@ -25,64 +23,69 @@ import static xiao.playground.peg.Utils.unEscape;
  *   \A (?&json) \Z
  *   /
  */
-public interface JSON3 {
-    // Parsec3<Character, Character> WS = SkipMany(Whitespace);
-    Parsec3<String> WS = Pat("\\s*");
-    Parsec3<String> jNull = Pat("null");
-    Parsec3<Boolean> jBool = Pat("true|false", "true"::equals);
-    Parsec3<Number> jNum = Pat("-?(?=[1-9]|0(?!\\d))\\d+(\\.\\d+)?([eE][+-]?\\d+)?", s -> {
+public interface JSON1 {
+    Rule WS = Whitespace();
+    Rule jNull = Pat("null", s -> null);
+    Rule jBool = Pat("true|false", "true"::equals);
+    Rule jNum = Pat("-?(?=[1-9]|0(?!\\d))\\d+(\\.\\d+)?([eE][+-]?\\d+)?", s -> {
         if (s.contains(".") || s.contains("e") || s.contains("E")) {
             return Double.parseDouble(s);
         } else {
             return Long.parseLong(s);
         }
     });
-    Parsec3<String> jStr = Pat("\"([^\"\\\\]*|\\\\[\"\\\\bfnrt\\/]|\\\\u[0-9a-f]{4})*\"", s -> {
+    Rule jStr = Pat("\"([^\"\\\\]*|\\\\[\"\\\\bfnrt\\/]|\\\\u[0-9a-f]{4})*\"", s -> {
         return unEscape(s.substring(1, s.length() - 1), '"');
     });
-    // \s 处理空数组
-    Parsec3<List<Object>> jArr = Between(
+
+    Rule jArr = Between(
             Pat("\\["),
             Pat("\\s*\\]"),// \s 处理空数组
             SepBy(json(), Pat(","))
     );
-    Parsec3<Pair<String, Object>> jPair = Seq(
+
+    Rule jPair = Seq(
             Between(WS, WS, jStr),
             Pat(":"),
             json(),
-            (k, colon, v) -> new Pair<>(k, v)
+            (k, colon, v) -> new Pair(k, v)
     );
-    // \s 处理空对象
-    Parsec3<Map<String, Object>> jObj = Between(
+
+    Rule jObj = Between(
             Pat("\\{"),
             Pat("\\s*\\}"), // \s 处理空对象
             SepBy(jPair, Pat(",")).map(lst -> {
                 Map<String, Object> map = new HashMap<>();
-                for (Pair<String, Object> pair : lst) {
-                    map.put(pair.car, pair.cdr);
+                for (Pair pair : ((List<Pair>) lst)) {
+                    map.put(((String) pair.car), pair.cdr);
                 }
                 return map;
             })
     );
 
-
-    static Parsec3<Object> json() {
+    static Rule json() {
         // json 做成方法是因为属性循环引用
         // 这里做 thunk 是因为 jArr 调用 json 时候, jObj 还是 null
-        return s -> Between(WS, WS, Choose(
+        return (s, m, f) -> Between(WS, WS, Choose(
                 jNull,
                 jNum,
                 jBool,
                 jStr,
                 jArr,
                 jObj
-        )).parse(s);
+        )).match(s, m, f);
     }
 
-    Parsec3<Optional<Object>> JSONParser = Optional(json()).over(EOF());
+    Rule JSONParser = Optional(json()).over(EOF());
 
     static Object Parse(String str) {
-        return JSONParser.parse(str).get();
+        Object[] ref = new Object[1];
+        JSONParser.match(
+                str.trim(),
+                (s, r) -> ref[0] = r,
+                (s, r) -> { throw new RuntimeException(r + ""); }
+                );
+        return ref[0];
     }
 
     // ================================================================================================
@@ -106,8 +109,8 @@ public interface JSON3 {
         System.out.println(Parse("{\"k1\":1, \"k2\":2}"));
         System.out.println(Parse("{\"k1\":1, \"k2\":2, \"k3\":3}"));
         System.out.println(Parse("123.456e-789"));
-        // System.out.println(Parse("  "));
+        System.out.println(Parse("  "));
         System.out.println(Parse(Utils.resource("/small.json")));
-        System.out.println(Parse(Utils.resource("/large.json")));
+        System.out.println(Parse(Utils.resource("/large.json"))); // -Xss15M
     }
 }

@@ -1,14 +1,14 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static xiao.playground.peg.Parsec2.CharParsers.Pat;
-import static xiao.playground.peg.Parsec2.Combinators.*;
-import static xiao.playground.peg.Parsec2.Pair;
-import static xiao.playground.peg.Utils.unEscape;
+import static xiao.parsec.Parsec2.CharParsers.Pat;
+import static xiao.parsec.Parsec2.Combinators.*;
+import static xiao.parsec.Parsec2.Pair;
+import static xiao.parsec.Utils.unEscape;
 
 /**
  *   /

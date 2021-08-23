@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -15,8 +15,8 @@ import static java.util.Collections.*;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
-import static xiao.playground.peg.Parsec2.CharParsers.*;
-import static xiao.playground.peg.Parsec2.Combinators.*;
+import static xiao.parsec.Parsec2.CharParsers.*;
+import static xiao.parsec.Parsec2.Combinators.*;
 
 
 /**

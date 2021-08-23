@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

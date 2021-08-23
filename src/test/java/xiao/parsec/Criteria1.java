@@ -1,15 +1,15 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
-import xiao.playground.peg.Parsec1.Pair;
-import xiao.playground.peg.Parsec1.Rule;
-import xiao.playground.peg.Parsec1.Triple;
+import xiao.parsec.Parsec1.Pair;
+import xiao.parsec.Parsec1.Rule;
+import xiao.parsec.Parsec1.Triple;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
-import static xiao.playground.peg.Parsec1.Rules.*;
+import static xiao.parsec.Parsec1.Rules.*;
 
 /**
  * @author chuxiaofeng <br>

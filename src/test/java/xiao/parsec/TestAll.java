@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 public interface TestAll {
     static void main(String[] args) throws Exception {

@@ -1,14 +1,11 @@
-package xiao.playground.peg;
-
-import xiao.playground.peg.Parsec.*;
+package xiao.parsec;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static xiao.playground.peg.Parsec.*;
-import static xiao.playground.peg.Parsec.Rules.*;
+import static xiao.parsec.Parsec.*;
 
 @SuppressWarnings("unused")
 public class TestParsec {
@@ -53,7 +50,7 @@ public class TestParsec {
 
     static void test_choose() {
         // Choose().match("", kNull(""), onFail);
-        Rule aOrb = Choose(Pat("a", StrRet::new), Pat("b", StrRet::new));
+        Rule aOrb = Rules.Choose(Rules.Pat("a", StrRet::new), Rules.Pat("b", StrRet::new));
         aOrb.match("c", (s, r) -> {
             throw new RuntimeException();
         }, (s, r) -> {
@@ -64,64 +61,64 @@ public class TestParsec {
     }
 
     static void test_over() {
-        Pat("a", StrRet::new).over(Whitespace()).match("a   ", kStr("", "a"), onFail);
+        Rules.Pat("a", StrRet::new).over(Rules.Whitespace()).match("a   ", kStr("", "a"), onFail);
     }
 
     static void test_then() {
-        Whitespace().then(Pat("a", StrRet::new)).match("    a", kStr("", "a"), onFail);
+        Rules.Whitespace().then(Rules.Pat("a", StrRet::new)).match("    a", kStr("", "a"), onFail);
     }
 
     static void test_between() {
-        Rule bw = Between(Pat("\\s*\\(\\s*"), Pat("\\s*\\)\\s*"), Pat("a", StrRet::new));
+        Rule bw = Rules.Between(Rules.Pat("\\s*\\(\\s*"), Rules.Pat("\\s*\\)\\s*"), Rules.Pat("a", StrRet::new));
         bw.match("  ( a )", kStr("", "a"), onFail);
     }
 
     static void test_optional() {
-        Rule ab = Option(Pat("a", StrRet::new), new StrRet("b"));
+        Rule ab = Rules.Option(Rules.Pat("a", StrRet::new), new StrRet("b"));
         ab.match("a", kStr("", "a"), onFail);
         ab.match("", kStr("", "b"), onFail);
 
-        Rule zeroOrOneA = Optional(Pat("a", StrRet::new));
+        Rule zeroOrOneA = Rules.Optional(Rules.Pat("a", StrRet::new));
         zeroOrOneA.match("", kNull(""), onFail);
         zeroOrOneA.match("a", kStr("", "a"), onFail);
     }
 
     static void test_lookAhead() {
         // 没有消耗 state
-        LookAhead(Pat("a", StrRet::new)).match("ab", kStr("ab", "a"), onFail);
+        Rules.LookAhead(Rules.Pat("a", StrRet::new)).match("ab", kStr("ab", "a"), onFail);
     }
 
     static void test_skip() {
-        Skip(Whitespace()).match("   a", kNull("a"), onFail);
+        Rules.Skip(Rules.Whitespace()).match("   a", kNull("a"), onFail);
 
-        Rule skipBThenAEOF = Skip(Many(Pat("b"))).then(Pat("a", StrRet::new)).over(EOF());
+        Rule skipBThenAEOF = Rules.Skip(Rules.Many(Rules.Pat("b"))).then(Rules.Pat("a", StrRet::new)).over(Rules.EOF());
         skipBThenAEOF.match("bbbba", kStr("", "a"), onFail);
         skipBThenAEOF.match("a", kStr("", "a"), onFail);
     }
 
     static void test_EOF() {
-        EOF().match("", kNull(""), onFail);
+        Rules.EOF().match("", kNull(""), onFail);
 
-        fail(() -> EOF().match("a", (s, r) -> { }, onFail));
+        fail(() -> Rules.EOF().match("a", (s, r) -> { }, onFail));
     }
 
     static void test_many() {
-        Many(Pat("a", StrRet::new)).match("", kLst("", 0), onFail);
-        Many(Pat("a", StrRet::new)).match("a", kLst("", 1), onFail);
-        Many(Pat("a", StrRet::new)).match("aaaaa", kLst("", 5), onFail);
+        Rules.Many(Rules.Pat("a", StrRet::new)).match("", kLst("", 0), onFail);
+        Rules.Many(Rules.Pat("a", StrRet::new)).match("a", kLst("", 1), onFail);
+        Rules.Many(Rules.Pat("a", StrRet::new)).match("aaaaa", kLst("", 5), onFail);
     }
 
     static void test_many1() {
-        fail(() -> Many1(Pat("a", StrRet::new)).match("", (s, r) -> { }, onFail));
-        Many1(Pat("a", StrRet::new)).match("a", kLst("", 1), onFail);
-        Many1(Pat("a", StrRet::new)).match("aaaaa", kLst("", 5), onFail);
+        fail(() -> Rules.Many1(Rules.Pat("a", StrRet::new)).match("", (s, r) -> { }, onFail));
+        Rules.Many1(Rules.Pat("a", StrRet::new)).match("a", kLst("", 1), onFail);
+        Rules.Many1(Rules.Pat("a", StrRet::new)).match("aaaaa", kLst("", 5), onFail);
     }
 
     static void test_count() {
-        Rule a0 = Count(Pat("a", StrRet::new), 0);
-        Rule a1 = Count(Pat("a", StrRet::new), 1);
-        Rule a2 = Count(Pat("a", StrRet::new), 2);
-        Rule a3 = Count(Pat("a", StrRet::new), 3);
+        Rule a0 = Rules.Count(Rules.Pat("a", StrRet::new), 0);
+        Rule a1 = Rules.Count(Rules.Pat("a", StrRet::new), 1);
+        Rule a2 = Rules.Count(Rules.Pat("a", StrRet::new), 2);
+        Rule a3 = Rules.Count(Rules.Pat("a", StrRet::new), 3);
 
         a0.match("a", kLst("a", 0), onFail);
         a1.match("a", kLst("", 1), onFail);
@@ -132,14 +129,14 @@ public class TestParsec {
     }
 
     static void test_manyTill() {
-        Rule comment = Seq(Pat("/\\*"), ManyTill(AnyChar(), Pat("\\*/")), (a, b) -> b);
+        Rule comment = Rules.Seq(Rules.Pat("/\\*"), Rules.ManyTill(Rules.AnyChar(), Rules.Pat("\\*/")), (a, b) -> b);
         comment.match("/* hello world!  */", (s, r) -> {
             assert s.isEmpty();
             String s1 = ((ListRet) r).lst.stream().map(it -> ((StrRet) it).str).collect(Collectors.joining("")).trim();
             assert "hello world!".equals(s1);
         }, onFail);
 
-        Rule commentReg = Seq(Pat("/\\*"), ManyTill(Pat("((?!\\*/).)+", StrRet::new), Pat("\\*/")), (a, b) -> b);
+        Rule commentReg = Rules.Seq(Rules.Pat("/\\*"), Rules.ManyTill(Rules.Pat("((?!\\*/).)+", StrRet::new), Rules.Pat("\\*/")), (a, b) -> b);
         commentReg.match("/* hello world!  */", (s, r) -> {
             assert s.isEmpty();
             assert "hello world!".equals(((StrRet) ((ListRet) r).lst.get(0)).str.trim());
@@ -147,16 +144,16 @@ public class TestParsec {
     }
 
     static void test_notFollowedBy() {
-        Rule let = Seq(
-                Pat("let", StrRet::new),
-                NotFollowedBy(Pat("[a-zA-Z0-9]+")),
+        Rule let = Rules.Seq(
+                Rules.Pat("let", StrRet::new),
+                Rules.NotFollowedBy(Rules.Pat("[a-zA-Z0-9]+")),
                 (a, b) -> a
         );
         let.match("let", kStr("", "let"), onFail);
         fail(() -> let.match("lets", (s, r) -> { }, onFail));
 
-        Rule notFollowByEOF = Seq(Pat("let", StrRet::new),
-                NotFollowedBy(EOF()),
+        Rule notFollowByEOF = Rules.Seq(Rules.Pat("let", StrRet::new),
+                Rules.NotFollowedBy(Rules.EOF()),
                 (a, b) -> a
         );
         notFollowByEOF.match("let ", kStr(" ", "let"), onFail);
@@ -206,11 +203,11 @@ public class TestParsec {
     }
 
     static void test_sepEndBy() {
-        Rule comma = Between(Whitespace(), Whitespace(), Pat(",", StrRet::new));
+        Rule comma = Rules.Between(Rules.Whitespace(), Rules.Whitespace(), Rules.Pat(",", StrRet::new));
 
         sepBy_(
-                SepBy(Pat("\\d+", StrRet::new), comma),
-                SepBy1(Pat("\\d+", StrRet::new), comma)
+                Rules.SepBy(Rules.Pat("\\d+", StrRet::new), comma),
+                Rules.SepBy1(Rules.Pat("\\d+", StrRet::new), comma)
         );
 //        sepBy_(
 //                SepBy(Pat("\\d+", StrRet::new), comma, false),
@@ -218,8 +215,8 @@ public class TestParsec {
 //        );
 
         sepEndBy_(
-                SepEndBy(Pat("\\d+", StrRet::new), comma),
-                SepEndBy1(Pat("\\d+", StrRet::new), comma)
+                Rules.SepEndBy(Rules.Pat("\\d+", StrRet::new), comma),
+                Rules.SepEndBy1(Rules.Pat("\\d+", StrRet::new), comma)
         );
 
 //        sepEndBy_(
@@ -228,14 +225,14 @@ public class TestParsec {
 //        );
 
         endBy_(
-                EndBy(Pat("\\d+", StrRet::new), comma),
-                EndBy1(Pat("\\d+", StrRet::new), comma)
+                Rules.EndBy(Rules.Pat("\\d+", StrRet::new), comma),
+                Rules.EndBy1(Rules.Pat("\\d+", StrRet::new), comma)
         );
     }
 
     static void test_chainr() {
-        Rule cr1 = Chainr1(Pat("\\d+", StrRet::new), Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())));
-        Rule cr = Chainr(Pat("\\d+", StrRet::new), Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())), null);
+        Rule cr1 = Rules.Chainr1(Rules.Pat("\\d+", StrRet::new), Rules.Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())));
+        Rule cr = Rules.Chainr(Rules.Pat("\\d+", StrRet::new), Rules.Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())), null);
 
         for (Rule rule : new Rule[]{cr1, cr}) {
             rule.match("1 + 2 -3 + 4", (s, r) -> {
@@ -269,8 +266,8 @@ public class TestParsec {
     }
 
     static void test_chainl() {
-        Rule cl1 = Chainl1(Pat("\\d+", StrRet::new), Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())));
-        Rule cl = Chainl(Pat("\\d+", StrRet::new), Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())), null);
+        Rule cl1 = Rules.Chainl1(Rules.Pat("\\d+", StrRet::new), Rules.Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())));
+        Rule cl = Rules.Chainl(Rules.Pat("\\d+", StrRet::new), Rules.Pat("\\s*[+-]\\s*", s -> new StrRet(s.trim())), null);
 
         for (Rule rule : new Rule[]{cl1, cl}) {
             rule.match("1 + 2 -3 + 4", (s, r) -> {

@@ -1,6 +1,6 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
-import xiao.playground.peg.Parsec.*;
+import xiao.parsec.Parsec.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,8 +9,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
-import static xiao.playground.peg.Parsec.*;
-import static xiao.playground.peg.Parsec.Rules.*;
+import static xiao.parsec.Parsec.Rules.*;
 
 /**
  * @author chuxiaofeng <br>

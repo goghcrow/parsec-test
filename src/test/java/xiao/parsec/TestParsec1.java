@@ -1,9 +1,9 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.lang.reflect.Method;
 
-import static xiao.playground.peg.Parsec1.*;
-import static xiao.playground.peg.Parsec1.Rules.*;
+import static xiao.parsec.Parsec1.*;
+import static xiao.parsec.Parsec1.Rules.*;
 
 @SuppressWarnings("unused")
 public interface TestParsec1 {

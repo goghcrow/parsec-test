@@ -1,4 +1,4 @@
-package xiao.playground.peg;
+package xiao.parsec;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -11,12 +11,12 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static xiao.playground.peg.Parsec2.*;
-import static xiao.playground.peg.Parsec2.CharParsers.*;
-import static xiao.playground.peg.Parsec2.Combinators.*;
+import static xiao.parsec.Parsec4.*;
+import static xiao.parsec.Parsec4.CharParsers.*;
+import static xiao.parsec.Parsec4.Combinators.*;
 
 @SuppressWarnings("unused")
-public interface TestParsec2 {
+public interface TestParsec4 {
 
     static <E> Function<List<E>, String> Join() {
         return v -> v.stream().map(String::valueOf).collect(joining());
@@ -26,15 +26,24 @@ public interface TestParsec2 {
         return v -> v.stream().map(String::valueOf).collect(joining(delimiter));
     }
 
-    static void assertEquals(Object a, Object b) { assert Objects.equals(a, b); }
-    static void assertNotEquals(Object a, Object b) { assert !Objects.equals(a, b); }
-    static void assertArrayEquals(Object[] a, Object[] b) { assert Arrays.equals(a, b); }
+    static void assertEquals(Object a, Result b) {
+        assert b.succ;
+        assert Objects.equals(a, b.ret);
+    }
+    static void assertNotEquals(Object a, Result b) {
+        assert b.succ;
+        assert !Objects.equals(a, b.ret);
+    }
+    static void assertArrayEquals(Object[] a, Result b) {
+        assert b.succ;
+        assert Arrays.equals(a, ((Object[]) b.ret)); // todo
+    }
 
 
     static void main(String[] args) throws Exception {
-        TestUtils.runMainWithEnableAssert(TestParsec2.class, args, n -> n.startsWith(TestParsec2.class.getPackage().getName()));
+        TestUtils.runMainWithEnableAssert(TestParsec4.class, args, n -> n.startsWith(TestParsec4.class.getPackage().getName()));
 
-        for (Method it : TestParsec2.class.getDeclaredMethods()) {
+        for (Method it : TestParsec4.class.getDeclaredMethods()) {
             if (it.getName().startsWith("test") || it.getName().endsWith("Test")) {
                 it.invoke(null);
             } else {
@@ -46,15 +55,10 @@ public interface TestParsec2 {
 
 
     static void test_choose() {
-        Parsec2<String, Character> choose = Choose(Str("Hello"), Str("World"));
-
-        assert "Hello".equals(choose.parse("Hello"));
-        assert "World".equals(choose.parse("World"));
-
-        try {
-            choose.parse("xxx");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        Parsec4<String, Character> choose = Choose(Str("Hello"), Str("World"));
+        assertEquals("Hello", choose.parse("Hello"));
+        assertEquals("World", choose.parse("World"));
+        assert !choose.parse("xxx").succ;
     }
 
 
@@ -84,11 +88,16 @@ public interface TestParsec2 {
     BiOperator<Expr, String, String> triple = new Triple();
 
     static void test_Chain() {
-        Parsec2<Expr, Character> cl = Chainl(Pat("\\d+"), Pat("\\s*[+-]\\s*").map(String::trim), null, triple);
-        Parsec2<Expr, Character> cr = Chainr(Pat("\\d+"), Pat("\\s*[+-]\\s*").map(String::trim), null, triple);
+        Parsec4<Expr, Character> cl = Chainl(Pat("\\d+"), Pat("\\s*[+-]\\s*").map(String::trim), null, triple);
+        Parsec4<Expr, Character> cr = Chainr(Pat("\\d+"), Pat("\\s*[+-]\\s*").map(String::trim), null, triple);
 
-        System.out.println(cl.parse("1 + 2 -3 + 4"));
-        System.out.println(cr.parse("1 + 2 -3 + 4"));
+        Result<Expr, Character> r1 = cl.parse("1 + 2 - 3 + 4");
+        assert r1.succ;
+        System.out.println(r1.ret);
+
+        Result<Expr, Character> r2 = cr.parse("1 + 2 - 3 + 4");
+        assert r2.succ;
+        System.out.println(r2.ret);
 
 
 
@@ -133,57 +142,14 @@ public interface TestParsec2 {
 
     // ========================================================================
 
-    static void testIndex() {
-        try {
-            String data = "abc";
-            Sequence<Character> s = new Sequence<>(data);
-            while (s.index() < data.length()) {
-                assertEquals(data.charAt(s.index()), s.next());
-            }
-            s.next();
-            throw new Error();
-        } catch (EOFException ignore) { }
-    }
-
-    static void testBegin() {
-        Sequence<Character> s = new Sequence<>("hello");
-        assertEquals('h', s.next());
-        int a = s.begin();
-        s.next();
-        s.next();
-        s.next();
-        s.rollback(a);
-        assertEquals('e', s.next());
-    }
-
-    static void testCommit() {
-        Sequence<Character> s = new Sequence<>("hello");
-
-        int a = s.begin();
-        assertEquals('h', s.next());
-
-        s.next();
-        s.commit(a);
-        assertEquals('l', s.next());
-    }
-
-    static void testRollback() {
-        Sequence<Character> s = new Sequence<>("hello");
-
-        int a = s.begin();
-        assertEquals('h', s.next());
-
-        s.rollback(a);
-        assertEquals('h', s.next());
-    }
-
     static void testNext() {
-        Sequence<Character> s = new Sequence<>("hello");
-        assertEquals( 'h', s.next());
-        assertEquals('e', s.next());
-        assertEquals('l', s.next());
-        assertEquals('l', s.next());
-        assertEquals('o', s.next());
+        Sequence<Character> s = new Sequence<>(chars("hello"));
+        Result<Character, Character> r;
+        assertEquals( 'h', r = s.next());
+        assertEquals('e', r = (r.state.next()));
+        assertEquals('l', r = (r.state.next()));
+        assertEquals('l', r = (r.state.next()));
+        assertEquals('o', r = (r.state.next()));
     }
 
     // ========================================================================
@@ -198,10 +164,7 @@ public interface TestParsec2 {
     }
 
     static void testFail() {
-        try {
-            Fail("").parse("");
-            throw new Error();
-        } catch (ParsecException ignore) { }
+        assert !Fail("").parse("").succ;
     }
 
     static void testOne() {
@@ -213,10 +176,7 @@ public interface TestParsec2 {
     }
 
     static void testEOF() {
-        try {
-            EOF().parse("hello");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !EOF().parse("hello").succ;
     }
 
     static void testStr() {
@@ -224,37 +184,27 @@ public interface TestParsec2 {
     }
 
     static void testReturn() {
-        Sequence<Character> s = new Sequence<>("");
-        int idx = s.index();
+        Sequence<Character> s = new Sequence<>(chars(""));
         assertEquals("Hello", Combinators.<String, Character>Return("Hello").parse(s));
         assertEquals("Hello", Return("Hello", TypeRef.Char).parse(s));
-        assertEquals(idx, s.index());
 
         {
-            Sequence<Character> s1 = new Sequence<>("Hello World");
-            int idx1 = s1.index();
+            Sequence<Character> s1 = new Sequence<>(chars("Hello World"));
             assertEquals(new BigDecimal("3.1415926"), Combinators.<BigDecimal, Character>Return(new BigDecimal("3.1415926")).parse(s1));
             assertEquals(new BigDecimal("3.1415926"), Return(new BigDecimal("3.1415926"), TypeRef.Char).parse(s1));
-            assertEquals(idx1, s1.index());
         }
     }
 
     static void testAhead() {
-        Sequence<Character> s = new Sequence<>("this is a string.");
+        Sequence<Character> s = new Sequence<>(chars("this is a string."));
         assertEquals( "this", Str("this").over(LookAhead(Str(" is"))).parse(s));
-        assertEquals(s.index(), 4);
 
-        Sequence<Character> s1 = new Sequence<>("this is a string.");
+        Sequence<Character> s1 = new Sequence<>(chars("this is a string."));
         assertEquals( "is", Str("this").then(Space).then(LookAhead(Str("is"))).parse(s1));
-        assertEquals(s1.index(), 5);
 
 
-        Sequence<Character> s2 = new Sequence<>("this is a string.");
-        try {
-            Str("this").then(Space).then(LookAhead(Str(" is"))).parse(s2);
-        } catch (ParsecException e) {
-            assertEquals(5, s2.index());
-        }
+        Sequence<Character> s2 = new Sequence<>(chars("this is a string."));
+        assert !Str("this").then(Space).then(LookAhead(Str(" is"))).parse(s2).succ;
     }
 
     static void testBetween() {
@@ -273,47 +223,33 @@ public interface TestParsec2 {
 
     static void testFind() {
         assertEquals("find", Find(Str("find")).parse("It is a junit test case for find parsec."));
-
-        try {
-            Find(Str("Fail")).parse("It is a junit test case for find parsec.");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !Find(Str("Fail")).parse("It is a junit test case for find parsec.").succ;
     }
 
     static void testMany() {
-        try {
-            Many1(EQ('h')).parse("ello");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !Many1(EQ('h')).parse("ello").succ;
 
         assertEquals( "h", Many1(EQ('h')).map(Join()).parse("hello"));
 
         assertEquals( "hello", Many1(Combinators.<Character>Any()).map(Join()).parse("hello"));
         assertEquals( "hello", Many1(Any(TypeRef.Char)).map(Join()).parse("hello"));
 
-        assertEquals( 2, Many(EQ('h')).parse("hhello").size());
-        assertEquals( 2, Many1(EQ('h')).parse("hhello").size());
+        assert 2 == Many(EQ('h')).parse("hhello").ret.size();
+        assert 2 == Many1(EQ('h')).parse("hhello").ret.size();
     }
 
     static void testManyTill() {
-        assertEquals( 6, ManyTill(EQ('h'), EQ('l')).parse("hhhhhhlhhhll").size());
+        assert 6 == ManyTill(EQ('h'), EQ('l')).parse("hhhhhhlhhhll").ret.size();
     }
 
     static void testNCh() {
         assertEquals('e', NotCh('H').parse("ello"));
-
-        try {
-            NotCh('H').parse("Hello");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !NotCh('H').parse("Hello").succ;
     }
 
     static void testChNone() {
         assertEquals('X', ChNone("HELLO").parse("X"));
-        try {
-            ChNone("HELLO").parse("H");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !ChNone("HELLO").parse("H").succ;
     }
 
     static void testSkipSpaces() {
@@ -330,38 +266,29 @@ public interface TestParsec2 {
 
     static void NoneOfTest() {
         assertEquals('h', NoneOf(Stream.of('k', 'o', 'f').collect(toList())).parse("hello"));
-        try {
-            NoneOf(Stream.of('k', 'f', 's').collect(toList())).parse("sound");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !NoneOf(Stream.of('k', 'f', 's').collect(toList())).parse("sound").succ;
     }
 
 
     static void OneOfTest() {
         assertEquals('h', OneOf(Stream.of('b', 'e', 'h', 'f').collect(toList())).parse("hello"));
-        try {
-            OneOf(Stream.of('d', 'a', 't', 'e').collect(toList())).parse("hello");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !OneOf(Stream.of('d', 'a', 't', 'e').collect(toList())).parse("hello").succ;
     }
 
     static void SepBy1Test() {
-        try {
-            Parsec2<List<Character>, Character> m = SepBy1(Ch('h'), Ch('l'));
+        Parsec4<List<Character>, Character> m = SepBy1(Ch('h'), Ch('l'));
 
-            List<Character> a = m.parse("hlhlhlhlhlhll");
-            assertEquals( 6, a.size());
+        List<Character> a = m.parse("hlhlhlhlhlhll").ret;
+        assert 6 == a.size();
 
-            Sequence<Character> s1 = new Sequence<>("hlh,h.hlhlhll");
-            List<Character> b = m.parse(s1);
-            assertEquals( 2, b.size());
-            m.parse(s1);
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        Sequence<Character> s1 = new Sequence<>(chars("hlh,h.hlhlhll"));
+        List<Character> b = m.parse(s1).ret;
+        assert 2 == b.size();
+        m.parse(s1);
     }
 
     static void SepByTest() {
-        assertEquals( 6, SepBy(EQ('h'), EQ('l')).parse("hlhlhlhlhlhll").size());
+        assert 6 == SepBy(EQ('h'), EQ('l')).parse("hlhlhlhlhlhll").ret.size();
     }
 
     static void testSkip1_simple() {
@@ -369,56 +296,44 @@ public interface TestParsec2 {
     }
 
     static void testSkip1_simpleStatus() {
-        Sequence<Character> s = new Sequence<>("left right left right");
-        SkipMany1(Str("left ")).parse(s);
-        assertEquals(5, s.index()); }
+        Sequence<Character> s = new Sequence<>(chars("left right left right"));
+        assert SkipMany1(Str("left ")).parse(s).state.buf.size() == "right left right".length();
+    }
 
     static void testSkip1_statusMore() {
-        Sequence<Character> state = new Sequence<>("left left right right");
-        SkipMany1(Str("left ")).parse(state);
-        assertEquals(10, state.index());
+        Sequence<Character> state = new Sequence<>(chars("left left right right"));
+        assert SkipMany1(Str("left ")).parse(state).state.buf.size() == "right right".length();
     }
 
     static void testSkip1_fail() {
-        Sequence<Character> s = new Sequence<>("right right left left");
-        try {
-            SkipMany1(Str("left ")).parse(s);
-        } catch (ParsecException e) {
-            assertEquals(0, s.index());
-        }
+        Sequence<Character> s = new Sequence<>(chars("right right left left"));
+        assert !SkipMany1(Str("left ")).parse(s).succ;
     }
 
     static void testSkip_oneSkip() {
-        Sequence<Character> s = new Sequence<>("hello World");
-        SkipMany(EQ('h')).parse(s);
-        assertEquals(1, s.index());
+        Sequence<Character> s = new Sequence<>(chars("hello World"));
+        assert SkipMany(EQ('h')).parse(s).state.buf.size() == "hello World".length() - 1;
     }
 
     static void testSkip_stopAtStart() {
-        Sequence<Character> s = new Sequence<>("hello World");
-        SkipMany(EQ('e')).parse(s);
-        assertEquals(0, s.index());
+        Sequence<Character> s = new Sequence<>(chars("hello World"));
+        assert SkipMany(EQ('e')).parse(s).state.buf.size() == "hello World".length();
     }
 
     static void testSkip_skipSpaces() {
-        Sequence<Character> stase = new Sequence<>("\t\t \thello World");
-        SkipMany(ChIn(" \t")).parse(stase);
-        assertEquals(4, stase.index());
+        Sequence<Character> stase = new Sequence<>(chars("\t\t \thello World"));
+        assert SkipMany(ChIn(" \t")).parse(stase).state.buf.size() == "hello World".length();
     }
 
     static void testSkip_skipNothing() {
-        Sequence<Character> stase = new Sequence<>("\nhello World");
-        SkipMany(ChIn(" \t")).parse(stase);
-        assertEquals(0, stase.index());
+        Sequence<Character> stase = new Sequence<>(chars("\nhello World"));
+        assert SkipMany(ChIn(" \t")).parse(stase).state.buf.size() == "\nhello World".length();;
     }
 
     static void SpaceTest() {
         assertEquals(' ', Space.parse(" "));
 
-        try {
-            Space.parse("\t");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !Space.parse("\t").succ;
     }
 
     static void strTest() {
@@ -426,28 +341,8 @@ public interface TestParsec2 {
         assertEquals("Hello", Str("Hello").parse("Hello World"));
         assertEquals( "汉", Str("汉").parse("汉字"));
 
-        try {
-            Str("Hello world").parse("Hello");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !Str("Hello world").parse("Hello").succ;
     }
-
-    static void tryTest() {
-        Sequence<Character> s = new Sequence<>("HelloWorld");
-        int idx = s.index();
-        assertEquals( "Hello", Try(Str("Hello")).parse(s));
-        assertNotEquals(idx, s.index());
-
-        Sequence<Character> s1 = new Sequence<>("HelloWorld");
-        int idx1 = s1.index();
-        try{
-            Try(Str("hello")).parse(s1);
-            throw new Error();
-        } catch(Exception e){
-            assertEquals(s1.index(), idx1);
-        }
-    }
-
 
     static void digitTest() {
         assertEquals('1', Digit.parse("1"));
@@ -466,15 +361,8 @@ public interface TestParsec2 {
         assertEquals("12345.123e+10", UDecimal.parse("12345.123e+10"));
         assertEquals("12345.123E-01", UDecimal.parse("12345.123E-01"));
 
-        try {
-            Decimal.parse("-x1234");
-            throw new Error();
-        } catch (ParsecException ignored) { }
-
-        try {
-            UDecimal.parse("x1234");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !Decimal.parse("-x1234").succ;
+        assert !UDecimal.parse("x1234").succ;
     }
 
     static void intTest() {
@@ -484,36 +372,31 @@ public interface TestParsec2 {
         assertEquals("12345", UInt.parse("12345"));
         assertEquals( "12345", UInt.parse("12345x123"));
 
-        try {
-            UInt.parse("x1234");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !UInt.parse("x1234").succ;
     }
 
     static void testOtherWise() {
-        Parsec2<Character, Character> otherwise = Ch('1').or(Ch('2')).or(Ch('3'));
+        Parsec4<Character, Character> otherwise = Ch('1').or(Ch('2')).or(Ch('3'));
         assertEquals('1', otherwise.parse("1"));
         assertEquals('2', otherwise.parse("2"));
         assertEquals('3', otherwise.parse("3"));
     }
 
     static void testOtherWiseEx() {
-        try {
-            Parsec2<Character, Character> otherwise = Ch('1').or(Ch('2')).or(Ch('3'));
-            otherwise.parse("4");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        Parsec4<Character, Character> otherwise = Ch('1').or(Ch('2')).or(Ch('3'));
+        assert !otherwise.parse("4").succ;
     }
 
     static void testEOS() {
-        try {
-            Find(Ch('a')).parse("cdefg");
-            throw new Error();
-        } catch (ParsecException ignored) { }
+        assert !Find(Ch('a')).parse("cdefg").succ;
     }
 
     static void testRegex() {
-        assertEquals("1234ab", Regex("\\d+").flatMap(v -> s -> v.group() + Str("ab").parse(s)).parse("1234ab"));
+        assertEquals("1234ab", Regex("\\d+").flatMap(v -> s -> {
+            Result<String, Character> r = Str("ab").parse(s);
+            assert r.succ;
+            return Result.succ(r.state, v.group() + r.ret);
+        }).parse("1234ab"));
     }
 
     static void testOptional() {
