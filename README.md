@@ -229,7 +229,7 @@ public interface JSON2 {
 ```
 
 
-```
+```java
 package xiao.playground.peg;
 
 import java.util.function.BiFunction;
@@ -313,7 +313,7 @@ public interface Calculator {
 }
 ```
 
-```
+```java
 package xiao.playground.peg;
 
 import java.util.function.BiFunction;
@@ -369,7 +369,7 @@ public interface Calculator1 {
 }
 ```
 
-```
+```java
 package xiao.playground.peg;
 
 import xiao.playground.peg.Parsec.*;
