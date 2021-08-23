@@ -1,0 +1,749 @@
+{
+  "index_version": 1,
+  "store_table_name": "org_employee_user",
+  "package": "CRM",
+  "api_name": "PersonnelObj",
+  "description": "描述企业的员工基本信息",
+  "define_type": "package",
+  "display_name": "人员",
+  "config": {
+    "record_type": {
+      "add": 0,
+      "assign": 0
+    },
+    "layout": {
+      "add": 0
+    }
+  },
+  "fields": {
+    "extend_obj_data_id": {
+      "is_required": false,
+      "api_name": "extend_obj_data_id",
+      "is_index": true,
+      "status": "released",
+      "is_unique": true,
+      "description": "连接通表的记录ID,扩展字段用",
+      "define_type": "system",
+      "label": "扩展字段在mt_data中的记录ID",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false
+    },
+    "user_id": {
+      "is_required": true,
+      "api_name": "user_id",
+      "status": "released",
+      "is_unique": true,
+      "description": "员工ID，只在企业内唯一",
+      "define_type": "package",
+      "is_index": true,
+      "label": "员工ID",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "name": {
+      "is_required": true,
+      "status": "released",
+      "api_name": "name",
+      "is_unique": true,
+      "description": "员工昵称，只在企业内唯一",
+      "define_type": "package",
+      "is_index": true,
+      "label": "员工昵称",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "enable": 0,
+        "edit": 0,
+        "attrs": {
+          "label": 0
+        }
+      }
+    },
+    "phone": {
+      "is_required": false,
+      "api_name": "phone",
+      "is_unique": true,
+      "description": "手机",
+      "pattern": "^[0-9+-;,]{0,100}$",
+      "define_type": "package",
+      "is_index": true,
+      "label": "手机",
+      "status": "released",
+      "type": "phone_number",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "leader": {
+      "is_required": false,
+      "api_name": "leader",
+      "is_unique": false,
+      "description": "员工的直属上级，即汇报对象",
+      "is_index": true,
+      "define_type": "package",
+      "status": "released",
+      "label": "汇报对象",
+      "type": "employee",
+      "max_length": 64,
+      "is_single": true,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "description": {
+      "is_required": false,
+      "api_name": "description",
+      "is_unique": false,
+      "description": "基本描述",
+      "status": "released",
+      "is_index": true,
+      "define_type": "package",
+      "label": "基本信息描述",
+      "type": "text",
+      "max_length": 500,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "position": {
+      "is_required": false,
+      "api_name": "position",
+      "is_unique": false,
+      "description": "员工的职位，如销售经理，java工程师",
+      "status": "released",
+      "is_index": true,
+      "define_type": "package",
+      "label": "职位",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "email": {
+      "is_required": false,
+      "api_name": "email",
+      "is_unique": false,
+      "status": "released",
+      "description": "员工的邮箱",
+      "is_index": true,
+      "define_type": "package",
+      "label": "邮箱",
+      "type": "email",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "status": {
+      "is_required": true,
+      "api_name": "status",
+      "is_unique": false,
+      "status": "released",
+      "description": "表示员工状态，启用或停用",
+      "define_type": "package",
+      "label": "员工状态",
+      "is_index": true,
+      "type": "select_one",
+      "is_extend": false,
+      "options": [
+        {
+          "value": "0",
+          "not_usable": false,
+          "label": "启用"
+        },
+        {
+          "value": "1",
+          "not_usable": false,
+          "label": "停用"
+        }
+      ]
+    },
+    "sex": {
+      "is_index": true,
+      "is_unique": false,
+      "label": "性别",
+      "type": "select_one",
+      "is_required": false,
+      "api_name": "sex",
+      "options": [
+        {
+          "not_usable": false,
+          "label": "男",
+          "value": "M"
+        },
+        {
+          "not_usable": false,
+          "label": "女",
+          "value": "F"
+        }
+      ],
+      "define_type": "package",
+      "is_index_field": false,
+      "status": "released",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "user_name": {
+      "is_required": false,
+      "api_name": "user_name",
+      "is_unique": true,
+      "status": "released",
+      "description": "员工登录账号",
+      "define_type": "package",
+      "is_index": true,
+      "label": "登录账号",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "main_department": {
+      "is_required": false,
+      "api_name": "main_department",
+      "is_unique": false,
+      "is_index": true,
+      "description": "员工的主属部门",
+      "status": "released",
+      "define_type": "package",
+      "label": "主属部门",
+      "type": "department",
+      "is_single": true,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "vice_departments": {
+      "is_required": false,
+      "api_name": "vice_departments",
+      "is_index": false,
+      "is_unique": false,
+      "status": "released",
+      "description": "员工的附属部门",
+      "define_type": "package",
+      "label": "附属部门",
+      "type": "department",
+      "is_single": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "birthday": {
+      "is_required": false,
+      "api_name": "birthday",
+      "is_unique": false,
+      "description": "员工的生日",
+      "is_index": true,
+      "define_type": "package",
+      "label": "生日",
+      "type": "date",
+      "status": "released",
+      "time_zone": "GMT+8",
+      "date_format": "yyyy-MM-dd",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "date_of_joining": {
+      "is_required": false,
+      "api_name": "date_of_joining",
+      "is_unique": false,
+      "description": "入职日期",
+      "is_index": true,
+      "define_type": "package",
+      "status": "released",
+      "label": "入职日期",
+      "type": "date",
+      "time_zone": "GMT+8",
+      "date_format": "yyyy-MM-dd",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "date_of_first_ployment": {
+      "is_required": false,
+      "api_name": "date_of_first_ployment",
+      "is_unique": false,
+      "description": "就业日期",
+      "define_type": "package",
+      "is_index": true,
+      "status": "released",
+      "label": "就业日期",
+      "type": "date",
+      "time_zone": "GMT+8",
+      "date_format": "yyyy-MM-dd",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "work_phone": {
+      "is_required": false,
+      "api_name": "work_phone",
+      "is_index": true,
+      "pattern": "^[0-9+-;,]{0,100}$",
+      "is_unique": false,
+      "description": "办公电话",
+      "define_type": "package",
+      "status": "released",
+      "label": "办公电话",
+      "type": "phone_number",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "qq_account": {
+      "is_required": false,
+      "api_name": "qq_account",
+      "is_unique": false,
+      "description": "qq号码",
+      "is_index": true,
+      "status": "released",
+      "define_type": "package",
+      "label": "qq号码",
+      "type": "text",
+      "max_length": 128,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "weixin_account": {
+      "is_required": false,
+      "api_name": "weixin_account",
+      "is_unique": false,
+      "description": "微信号码",
+      "status": "released",
+      "is_index": true,
+      "define_type": "package",
+      "label": "微信号码",
+      "type": "text",
+      "max_length": 128,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "msn": {
+      "is_required": false,
+      "api_name": "msn",
+      "is_unique": false,
+      "description": "msn",
+      "is_index": true,
+      "status": "released",
+      "define_type": "package",
+      "label": "msn",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "working_states": {
+      "is_required": false,
+      "api_name": "working_states",
+      "is_unique": false,
+      "description": "心情",
+      "status": "released",
+      "is_index": true,
+      "define_type": "package",
+      "label": "心情",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "stop_time": {
+      "is_required": false,
+      "api_name": "stop_time",
+      "is_unique": false,
+      "is_index": true,
+      "description": "停用时间",
+      "define_type": "package",
+      "status": "released",
+      "label": "停用时间",
+      "type": "date",
+      "time_zone": "GMT+8",
+      "date_format": "yyyy-MM-dd",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "employee_number": {
+      "is_required": false,
+      "api_name": "employee_number",
+      "is_unique": false,
+      "description": "员工编号",
+      "is_index": true,
+      "define_type": "package",
+      "status": "released",
+      "label": "员工编号",
+      "type": "text",
+      "max_length": 64,
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "extension_number": {
+      "is_required": false,
+      "is_index": true,
+      "api_name": "extension_number",
+      "pattern": "^[0-9+-;,]{0,100}$",
+      "is_unique": false,
+      "description": "办公电话扩展分机号",
+      "define_type": "package",
+      "label": "办公电话扩展分机号",
+      "status": "released",
+      "type": "phone_number",
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "record_type": {
+      "is_index": false,
+      "is_active": true,
+      "description": "record_type",
+      "is_unique": false,
+      "label": "业务类型",
+      "type": "record_type",
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "record_type",
+      "options": [
+        {
+          "is_active": true,
+          "api_name": "default__c",
+          "description": "预设业务类型",
+          "label": "预设业务类型"
+        }
+      ],
+      "define_type": "package",
+      "index_name": "record_type",
+      "help_text": "",
+      "status": "released",
+      "is_extend": false
+    },
+    "owner_department": {
+      "default_is_expression": false,
+      "is_index": false,
+      "is_active": true,
+      "pattern": "",
+      "is_unique": false,
+      "default_value": "",
+      "label": "负责人所在部门",
+      "type": "text",
+      "default_to_zero": false,
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "owner_department",
+      "define_type": "package",
+      "is_single": true,
+      "help_text": "",
+      "max_length": 100,
+      "status": "released",
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "owner": {
+      "is_index": true,
+      "is_active": true,
+      "is_unique": false,
+      "label": "负责人",
+      "type": "employee",
+      "is_need_convert": false,
+      "is_required": true,
+      "api_name": "owner",
+      "define_type": "package",
+      "is_single": true,
+      "help_text": "",
+      "status": "released",
+      "is_extend": false,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      }
+    },
+    "relevant_team": {
+      "embedded_fields": {
+        "teamMemberEmployee": {
+          "is_index": true,
+          "is_need_convert": true,
+          "is_required": false,
+          "api_name": "teamMemberEmployee",
+          "is_unique": false,
+          "define_type": "package",
+          "description": "成员员工",
+          "label": "成员员工",
+          "type": "employee",
+          "is_single": true,
+          "help_text": "成员员工"
+        },
+        "teamMemberRole": {
+          "is_index": true,
+          "is_need_convert": false,
+          "is_required": false,
+          "api_name": "teamMemberRole",
+          "options": [
+            {
+              "label": "负责人",
+              "value": "1"
+            },
+            {
+              "label": "普通成员",
+              "value": "4"
+            }
+          ],
+          "is_unique": false,
+          "define_type": "package",
+          "description": "成员角色",
+          "label": "成员角色",
+          "type": "select_one",
+          "help_text": "成员角色"
+        },
+        "teamMemberPermissionType": {
+          "is_index": true,
+          "is_need_convert": false,
+          "is_required": false,
+          "api_name": "teamMemberPermissionType",
+          "options": [
+            {
+              "label": "只读",
+              "value": "1"
+            },
+            {
+              "label": "读写",
+              "value": "2"
+            }
+          ],
+          "is_unique": false,
+          "define_type": "package",
+          "description": "成员权限类型",
+          "label": "成员权限类型",
+          "type": "select_one",
+          "help_text": "成员权限类型"
+        }
+      },
+      "is_index": true,
+      "is_active": true,
+      "is_unique": false,
+      "label": "相关团队",
+      "type": "embedded_object_list",
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "relevant_team",
+      "define_type": "package",
+      "help_text": "相关团队",
+      "is_extend": false
+    },
+    "lock_status": {
+      "is_index": true,
+      "is_active": true,
+      "is_unique": false,
+      "default_value": "0",
+      "label": "锁定状态",
+      "type": "select_one",
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "lock_status",
+      "options": [
+        {
+          "label": "未锁定",
+          "value": "0"
+        },
+        {
+          "label": "锁定",
+          "value": "1"
+        }
+      ],
+      "define_type": "package",
+      "is_single": true,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      },
+      "status": "released"
+    },
+    "life_status": {
+      "is_index": true,
+      "is_active": true,
+      "description": "生命状态",
+      "is_unique": false,
+      "default_value": "normal",
+      "label": "生命状态",
+      "type": "select_one",
+      "is_required": true,
+      "api_name": "life_status",
+      "options": [
+        {
+          "label": "未生效",
+          "value": "ineffective"
+        },
+        {
+          "label": "审核中",
+          "value": "under_review"
+        },
+        {
+          "label": "正常",
+          "value": "normal"
+        },
+        {
+          "label": "变更中",
+          "value": "in_change"
+        },
+        {
+          "label": "作废",
+          "value": "invalid"
+        }
+      ],
+      "define_type": "package",
+      "is_index_field": false,
+      "is_single": true,
+      "config": {
+        "attrs": {
+          "is_readonly": 0,
+          "is_required": 0
+        }
+      },
+      "status": "released"
+    },
+    "lock_rule": {
+      "is_index": false,
+      "is_active": true,
+      "description": "锁定规则",
+      "is_unique": false,
+      "default_value": "default_lock_rule",
+      "rules": [
+      ],
+      "label": "锁定规则",
+      "type": "lock_rule",
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "lock_rule",
+      "define_type": "package",
+      "is_index_field": false,
+      "is_single": false,
+      "status": "released"
+    },
+    "life_status_before_invalid": {
+      "is_index": false,
+      "is_active": true,
+      "pattern": "",
+      "description": "作废前生命状态",
+      "is_unique": false,
+      "label": "作废前生命状态",
+      "type": "text",
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "life_status_before_invalid",
+      "define_type": "package",
+      "is_index_field": false,
+      "is_single": false,
+      "status": "released"
+    },
+    "lock_user": {
+      "is_index": false,
+      "is_active": true,
+      "description": "加锁人",
+      "is_unique": false,
+      "label": "加锁人",
+      "type": "employee",
+      "is_need_convert": false,
+      "is_required": false,
+      "api_name": "lock_user",
+      "define_type": "package",
+      "is_index_field": false,
+      "is_single": true,
+      "status": "released"
+    }
+  }
+}
